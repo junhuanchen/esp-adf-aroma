@@ -492,10 +492,10 @@ void button_27_LONG_PRESSED()
     }
     else
     {
+        TM1620_Print(" U  ");
         aroma_stop(&Player);
         aroma_volume(&Player, 100);
         aroma_play(&Player);
-        TM1620_Print(" U  ");
     }
 }
 
