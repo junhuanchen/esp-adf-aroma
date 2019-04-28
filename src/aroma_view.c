@@ -160,7 +160,7 @@ void control_task(time_t now)
             {
                 // 起床时间期间的状态机。
 
-                if (now % 60 == 0)
+                if (now % 40 == 0)
                 {
                     aroma_play(&Player);
                 }
@@ -220,7 +220,7 @@ void control_task(time_t now)
             {
                 // 睡觉时间期间的状态机
 
-                if (now % 60 == 0)
+                if (now % 40 == 0)
                 {
                     aroma_play(&Player);
                 }
