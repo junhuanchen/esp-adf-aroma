@@ -26,6 +26,8 @@ extern const uint8_t getup_mp3_end[] asm("_binary_getup_mp3_end");
 const char * TAG_VIEW = "aroma_view";
 
 extern Aroma Player;
+extern bool music_is_play, music_is_pause;
+
 
 time_t getup_time, sleep_time, local_time, time_change, *time_data = &local_time;
 
@@ -149,15 +151,15 @@ void control_task(time_t now)
                     control_mode = 1;
                     
                     set_spray(60 * 60, 10, true, true);
-                    set_ledc(true, false, true);
+                    // set_ledc(true, false, true);
                     
                     control_pause = false;
                     
-                    aroma_music(&Player, getup_mp3_start, getup_mp3_end);
+                    // aroma_music(&Player, getup_mp3_start, getup_mp3_end);
 
-                    aroma_volume(&Player, 25);
+                    // aroma_volume(&Player, 25);
                     
-                    aroma_play(&Player);
+                    // aroma_play(&Player);
                     
                     printf("ready getup_time %ld\n", getup_time);
                     
@@ -179,28 +181,24 @@ void control_task(time_t now)
                 {
                     printf("now - getup_time %ld\n", now - getup_time);
                     
-                    if (now % 60 == 0)
+                    if (now % 60 == 0 && now - getup_time >= 20 * 60)
                     {
                         puts("replay getup music");
                         vTaskDelay(100 / portTICK_RATE_MS); // 100ms 
                         aroma_music(&Player, getup_mp3_start, getup_mp3_end);
                         aroma_resume(&Player);
-                        if(Player.player_volume != 25 && now - getup_time >= 10 * 60)
-                        {
-                            aroma_volume(&Player, 25);
-                        }
                         
                         if(Player.player_volume != 50 && now - getup_time >= 20 * 60)
                         {
                             aroma_volume(&Player, 50);
                         }
                         
-                        if(Player.player_volume != 75 && now - getup_time >= 30 * 60)
+                        if(Player.player_volume != 75 && now - getup_time >= 25 * 60)
                         {
                             aroma_volume(&Player, 75);
                         }
                         
-                        if(Player.player_volume != 100 && now - getup_time >= 40 * 60)
+                        if(Player.player_volume != 100 && now - getup_time >= 30 * 60)
                         {
                             aroma_volume(&Player, 100);
                         }
@@ -213,6 +211,15 @@ void control_task(time_t now)
                         puts("getup ledc_fade_enable");
                     }
 
+                    if (music_is_play == false && now > (getup_time + 19 * 60))
+                    {
+                        aroma_music(&Player, getup_mp3_start, getup_mp3_end);
+
+                        aroma_volume(&Player, 25);
+                    
+                        aroma_play(&Player);
+                    }
+                    
                     if (ledc_fade_pause == false && now > (getup_time + 30 * 60))
                     {
                         set_ledc(true, true, true);
