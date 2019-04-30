@@ -338,6 +338,8 @@ esp_err_t audio_pipeline_reset_items_state(audio_pipeline_handle_t pipeline);
  */
 esp_err_t audio_pipeline_reset_ringbuffer(audio_pipeline_handle_t pipeline);
 
+esp_err_t audio_pipeline_state(audio_pipeline_handle_t pipeline);
+
 #ifdef __cplusplus
 }
 #endif

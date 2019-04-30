@@ -55,6 +55,7 @@ void aroma_stop(Aroma *Self)
 
 int aroma_music(Aroma *Self, const uint8_t *start, const uint8_t *end)
 {
+    aroma_pause(Self);
     aroma_stop(Self);
     music_head = start, music_tail = end;
     return music_tail - music_head;
@@ -63,7 +64,7 @@ int aroma_music(Aroma *Self, const uint8_t *start, const uint8_t *end)
 int aroma_volume(Aroma *Self, int Value)
 {
     printf("aroma_volume Value %d\n", Value);
-    Self->player_volume += Value;
+    Self->player_volume = Value;
     if (Self->player_volume > 100)
         Self->player_volume = 100;
     if (Self->player_volume < 0)
@@ -137,8 +138,11 @@ void aroma_init(Aroma *Self)
 
     ESP_LOGI(TAG_Aroma, "[4.2] Listening event from peripherals");
     audio_event_iface_set_listener(esp_periph_get_event_iface(), Self->evt);
-
+    
     ESP_LOGW(TAG_Aroma, "[ 5 ] Tap touch buttons to control music player:");
+    
+    return;
+    
     ESP_LOGW(TAG_Aroma, "      [Play] to start, pause and resume, [Set] to stop.");
     ESP_LOGW(TAG_Aroma, "      [Vol-] or [Vol+] to adjust volume.");
 }

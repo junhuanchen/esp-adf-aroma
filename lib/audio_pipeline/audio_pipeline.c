@@ -240,6 +240,11 @@ esp_err_t audio_pipeline_pause(audio_pipeline_handle_t pipeline)
     return ESP_OK;
 }
 
+esp_err_t audio_pipeline_state(audio_pipeline_handle_t pipeline)
+{
+    return pipeline->state;
+}
+
 esp_err_t audio_pipeline_run(audio_pipeline_handle_t pipeline)
 {
     audio_element_item_t *el_item;

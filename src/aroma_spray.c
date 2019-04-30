@@ -131,7 +131,7 @@ void task_spray(void *arg)
             
         }
 
-        vTaskDelay(2500 / portTICK_RATE_MS);
+        vTaskDelay(5000 / portTICK_RATE_MS);
     }
 }
 
