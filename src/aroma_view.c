@@ -150,7 +150,7 @@ void control_task(time_t now)
                     
                     control_mode = 1;
                     
-                    set_spray(60 * 60, 10, true, true);
+                    set_spray(60 * 60, 100, true, true);
                     // set_ledc(true, false, true);
                     
                     control_pause = false;
@@ -248,12 +248,12 @@ void control_task(time_t now)
                 {
                     sleep_time = now; // 同步时间
                     control_mode = 2;
-                    set_spray(60 * 60, 10, true, false);
+                    set_spray(60 * 60, 100, true, false);
                     set_ledc(true, false, false);
                     
                     aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
 
-                    aroma_volume(&Player, 100);
+                    aroma_volume(&Player, 50);
                     aroma_play(&Player);
                     
                     printf("ready sleep_time %ld\n", sleep_time);
@@ -274,19 +274,19 @@ void control_task(time_t now)
                     aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
                     aroma_resume(&Player);
                     
-                    if(Player.player_volume != 75 && now - sleep_time >= 10 * 60)
+                    if(Player.player_volume != 40 && now - sleep_time >= 10 * 60)
                     {
-                        aroma_volume(&Player, 75);
+                        aroma_volume(&Player, 40);
                     }
                     
-                    if(Player.player_volume != 50 && now - sleep_time >= 20 * 60)
+                    if(Player.player_volume != 30 && now - sleep_time >= 20 * 60)
                     {
-                        aroma_volume(&Player, 50);
+                        aroma_volume(&Player, 30);
                     }
                     
-                    if(Player.player_volume != 25 && now - sleep_time >= 30 * 60)
+                    if(Player.player_volume != 20 && now - sleep_time >= 30 * 60)
                     {
-                        aroma_volume(&Player, 25);
+                        aroma_volume(&Player, 20);
                     }
                 }
                 
@@ -319,11 +319,11 @@ void button_13_PRESSED()
         static int last_state = 0;
         if (last_state)
         {
-            ledc_fade_pause = ledc_fade_enable = false;
+            all_ledc_off();
         }
         else
         {
-            ledc_fade_pause = ledc_fade_enable = true;
+            all_ledc_on();
         }
         last_state = !last_state;
     }
@@ -516,7 +516,7 @@ void button_33_LONG_PRESSED()
     {
         view_mode = view_idle;
     }
-
+    spray_duty = 100;
     all_spray_on();
     TM1620_Print(" H  ");
 }

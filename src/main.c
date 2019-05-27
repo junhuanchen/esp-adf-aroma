@@ -19,7 +19,11 @@ void app_main(void)
     aroma_init(&Player);
     aroma_music(&Player, getup_mp3_start, getup_mp3_end);
     // aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
-
+    
+    // aroma_play(&Player);
+    
+    // return;
+    
     // unit_test_aroma_config();
     
     unit_test_ledc_fade();
@@ -29,7 +33,9 @@ void app_main(void)
 
     // aroma_volume(&Player, 100);
     // aroma_play(&Player);
-
+    
+    // return;
+    
     // aroma_stop_time = 15 * 1000000;
 
     bool is_ative = true;

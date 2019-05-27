@@ -29,20 +29,20 @@ void set_ledc(int enable, int pause, bool mode)
 void all_ledc_on()
 {
     //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_TEST_DUTY_MAX, 1000);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
 
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_TEST_DUTY_MAX, 1000);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
 }
 
 void all_ledc_off()
 {
     //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MIN, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, 0, LEDC_TEST_FADE_TIME);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, 0, 1000);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
     
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, LEDC_TEST_FADE_TIME);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, 1000);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
 }
 
