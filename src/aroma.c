@@ -121,7 +121,7 @@ void aroma_init(Aroma *Self)
     // Initialize button peripheral
     periph_button_cfg_t btn_cfg = {
         .gpio_mask = GPIO_SEL_32 | GPIO_SEL_13 | GPIO_SEL_27 | GPIO_SEL_33,
-        .long_press_time_ms = 1500
+        .long_press_time_ms = 3000
     };
     Self->button_periph = periph_button_init(&btn_cfg);
     

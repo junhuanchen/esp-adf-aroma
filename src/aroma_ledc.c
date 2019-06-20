@@ -5,19 +5,19 @@
 
 #define LEDC_TIMER             LEDC_TIMER_0
 #define LEDC_MODE              LEDC_HIGH_SPEED_MODE
-#define LEDC_FADE_GPIO1        (23)   //Set GPIO 22 as LEDC
-#define LEDC_FADE_GPIO2        (18)   //Set GPIO 22 as LEDC
+#define LEDC_FADE_GPIO1        (23)
+#define LEDC_FADE_GPIO2        (18)
 #define LEDC_FADE_CHANNEL1      LEDC_CHANNEL_0
 #define LEDC_FADE_CHANNEL2      LEDC_CHANNEL_1
 
 #define LEDC_TEST_DUTY_MAX     (8000)//max to 2 ** duty_resolution - 1 = 2 ** 13 -1 = 8191
-#define LEDC_TEST_DUTY_MIN     (200)
+#define LEDC_TEST_DUTY_MIN     (2000)
 #define LEDC_TEST_FADE_TIME    (4000) //T = 8s
 
 bool ledc_fade_enable = false;
 bool ledc_fade_pause = false;
 
-int nightly_mode = true; // 红灯
+int nightly_mode = false; //  nightly 红灯
 
 void set_ledc(int enable, int pause, bool mode)
 {
@@ -29,20 +29,20 @@ void set_ledc(int enable, int pause, bool mode)
 void all_ledc_on()
 {
     //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_TEST_DUTY_MAX, 1000);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
 
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_TEST_DUTY_MAX, 1000);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
 }
 
 void all_ledc_off()
 {
     //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MIN, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, 0, 1000);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, 0, LEDC_TEST_FADE_TIME);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
     
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, 1000);
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, LEDC_TEST_FADE_TIME);
     ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
 }
 
@@ -60,7 +60,6 @@ void start_ledc_fade()
         ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
         ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
     }
-    vTaskDelay(LEDC_TEST_FADE_TIME / portTICK_RATE_MS);
 }
 
 void close_ledc_fade()
@@ -77,7 +76,6 @@ void close_ledc_fade()
         ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, LEDC_TEST_FADE_TIME);
         ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
     }
-    vTaskDelay(LEDC_TEST_FADE_TIME / portTICK_RATE_MS);
 }
 
 void task_ledc_fade(void *arg)
@@ -125,6 +123,7 @@ void task_ledc_fade(void *arg)
         if(ledc_fade_enable)
         {
             start_ledc_fade();
+            vTaskDelay(LEDC_TEST_FADE_TIME / portTICK_RATE_MS);
             // music value += 1
             
             if (ledc_fade_pause)
@@ -134,6 +133,7 @@ void task_ledc_fade(void *arg)
             else
             {
                 close_ledc_fade();
+                vTaskDelay(LEDC_TEST_FADE_TIME / portTICK_RATE_MS);
             }
         }
         else
@@ -141,6 +141,7 @@ void task_ledc_fade(void *arg)
             if (ledc_fade_pause == false)
             {
                 close_ledc_fade();
+                vTaskDelay(LEDC_TEST_FADE_TIME / portTICK_RATE_MS);
             }
         }
         

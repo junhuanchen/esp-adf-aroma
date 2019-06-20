@@ -120,13 +120,15 @@ void control_start()
 
 void control_close()
 {
-    set_ledc(false, false, false), all_ledc_off();
+    puts("control_close");
+    set_ledc(false, false, true), all_ledc_off();
 
-    spray_time = spray_state = 0, all_spray_off();
+    spray_state = 0, all_spray_off();
 
     // aroma_stop(&Player);
     
     view_mode = view_idle;
+    display_time();
 }
 
 void control_task(time_t now)
@@ -135,18 +137,18 @@ void control_task(time_t now)
     {
         struct tm tmp_now = {0}, tmp = {0};
         gmtime_r(&now, &tmp_now);
-        
+    
         {
             gmtime_r(&getup_time, &tmp);
 
-            printf("getup %ld %ld hour %d %d min %d %d\n", now, sleep_time, tmp_now.tm_hour, tmp.tm_hour, tmp_now.tm_min, tmp.tm_min);
+            printf("getup %ld %ld hour %d %d min %d %d\n", now, getup_time, tmp_now.tm_hour, tmp.tm_hour, tmp_now.tm_min, tmp.tm_min);
         
         
             if(control_mode == 0 && tmp_now.tm_hour == tmp.tm_hour)
             {
                 if(abs(tmp_now.tm_min - tmp.tm_min) < 3)
                 {
-                    getup_time = now; // 同步时间
+                    getup_time = now - (3 * 60); // 同步时间
                     
                     control_mode = 1;
                     
@@ -157,7 +159,7 @@ void control_task(time_t now)
                     
                     // aroma_music(&Player, getup_mp3_start, getup_mp3_end);
 
-                    // aroma_volume(&Player, 25);
+                    aroma_volume(&Player, 20);
                     
                     // aroma_play(&Player);
                     
@@ -184,23 +186,25 @@ void control_task(time_t now)
                     if (now % 60 == 0 && now - getup_time >= 20 * 60)
                     {
                         puts("replay getup music");
-                        vTaskDelay(100 / portTICK_RATE_MS); // 100ms 
+                        vTaskDelay(900 / portTICK_RATE_MS); // 900ms 
+                    
+                        aroma_stop(&Player);
                         aroma_music(&Player, getup_mp3_start, getup_mp3_end);
                         aroma_resume(&Player);
                         
-                        if(Player.player_volume != 50 && now - getup_time >= 20 * 60)
+                        if(Player.player_volume != 40 && now - getup_time >= 20 * 60)
                         {
-                            aroma_volume(&Player, 50);
+                            aroma_volume(&Player, 40);
                         }
                         
-                        if(Player.player_volume != 75 && now - getup_time >= 25 * 60)
+                        if(Player.player_volume != 60 && now - getup_time >= 25 * 60)
                         {
-                            aroma_volume(&Player, 75);
+                            aroma_volume(&Player, 60);
                         }
                         
-                        if(Player.player_volume != 100 && now - getup_time >= 30 * 60)
+                        if(Player.player_volume != 80 && now - getup_time >= 30 * 60)
                         {
-                            aroma_volume(&Player, 100);
+                            aroma_volume(&Player, 80);
                         }
                     }
                     
@@ -215,7 +219,7 @@ void control_task(time_t now)
                     {
                         aroma_music(&Player, getup_mp3_start, getup_mp3_end);
 
-                        aroma_volume(&Player, 25);
+                        aroma_volume(&Player, 20);
                     
                         aroma_play(&Player);
                     }
@@ -246,14 +250,14 @@ void control_task(time_t now)
             {
                 if(abs(tmp_now.tm_min - tmp.tm_min) < 3)
                 {
-                    sleep_time = now; // 同步时间
+                    sleep_time = now - (3 * 60); // 同步时间
                     control_mode = 2;
                     set_spray(60 * 60, 100, true, false);
                     set_ledc(true, false, false);
                     
                     aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
 
-                    aroma_volume(&Player, 50);
+                    aroma_volume(&Player, 40);
                     aroma_play(&Player);
                     
                     printf("ready sleep_time %ld\n", sleep_time);
@@ -270,29 +274,32 @@ void control_task(time_t now)
                 if (now % 60 == 0 && now - sleep_time < 45 * 60)
                 {
                     puts("replay sleep music");
-                    vTaskDelay(100 / portTICK_RATE_MS); // 100ms 
+                    vTaskDelay(900 / portTICK_RATE_MS); // 900ms 
+                    
+                    aroma_stop(&Player);
                     aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
                     aroma_resume(&Player);
                     
-                    if(Player.player_volume != 40 && now - sleep_time >= 10 * 60)
-                    {
-                        aroma_volume(&Player, 40);
-                    }
-                    
-                    if(Player.player_volume != 30 && now - sleep_time >= 20 * 60)
+                    if(Player.player_volume != 30 && now - sleep_time >= 10 * 60)
                     {
                         aroma_volume(&Player, 30);
                     }
                     
-                    if(Player.player_volume != 20 && now - sleep_time >= 30 * 60)
+                    if(Player.player_volume != 20 && now - sleep_time >= 20 * 60)
                     {
                         aroma_volume(&Player, 20);
+                    }
+                    
+                    if(Player.player_volume != 10 && now - sleep_time >= 30 * 60)
+                    {
+                        aroma_volume(&Player, 10);
                     }
                 }
                 
                 if (ledc_fade_enable && now - sleep_time > 45 * 60)
                 {
                     set_ledc(false, false, false);
+                    close_ledc_fade(); // 防止没关到（同模式）
                     aroma_stop(&Player);
                     puts("sleep mid");
                 }
@@ -313,17 +320,22 @@ void control_task(time_t now)
 void button_13_PRESSED()
 {
     TM1620_Print(" A  ");
+    puts(" A  ");
     
-    if (control_mode == 0)
+    if (control_mode == 0 || control_mode == 2)
     {
         static int last_state = 0;
         if (last_state)
         {
-            all_ledc_off();
+            ledc_fade_pause = ledc_fade_enable = false;
+            close_ledc_fade();
+            // all_ledc_off();
         }
         else
         {
-            all_ledc_on();
+            ledc_fade_pause = ledc_fade_enable = true;
+            start_ledc_fade();
+            // all_ledc_on();
         }
         last_state = !last_state;
     }
@@ -348,6 +360,9 @@ void button_13_PRESSED()
 
 void button_13_LONG_PRESSED()
 {
+    TM1620_Print(" P  ");
+    puts(" P  ");
+    
     if (control_mode != 0)
     {
         control_mode = 0;
@@ -358,8 +373,15 @@ void button_13_LONG_PRESSED()
 
 void button_13_LONG_RELEASE()
 {
-    control_close();
+    TM1620_Print(" P  ");
+    puts(" P  ");
     
+    if (control_mode != 0)
+    {
+        control_mode = 0;
+    }
+    control_close();
+    aroma_stop(&Player);
 }
 
 void button_32_PRESSED()
@@ -370,15 +392,9 @@ void button_32_PRESSED()
     }
     else
     {
-        nightly_mode = !nightly_mode;
-        if(nightly_mode)
-        {
-            TM1620_Print(" L ");
-        }
-        else
-        {
-            TM1620_Print(" P ");
-        }
+        is_view = true;
+        nightly_mode = true;
+        display_time();
     }
 }
 
@@ -390,7 +406,28 @@ void button_32_LONG_PRESSED()
     }
     else
     {
-        ledc_fade_enable = true;
+        if(control_mode == 0)
+        {
+            // 启动起床模式
+            TM1620_Print(" H  ");
+            puts(" H  ");
+            time_t now = time(NULL);
+            getup_time = now = now - (3 * 60); // 同步时间
+            control_mode = 1;
+            set_spray(60 * 60, 100, true, true);
+            set_ledc(true, false, true);
+    
+            control_pause = false;
+
+            aroma_music(&Player, getup_mp3_start, getup_mp3_end);
+
+            aroma_volume(&Player, 80); // 只为测试效果
+            aroma_play(&Player);
+            
+            printf("ready getup_time %ld\n", getup_time);
+
+        }
+
     }
 }
 
@@ -402,7 +439,6 @@ void button_32_LONG_RELEASE()
     }
     else
     {
-        ledc_fade_enable = false;
         display_time();
     }
 }
@@ -516,9 +552,9 @@ void button_33_LONG_PRESSED()
     {
         view_mode = view_idle;
     }
-    spray_duty = 100;
+
     all_spray_on();
-    TM1620_Print(" H  ");
+    TM1620_Print(" E  ");
 }
 
 void button_33_LONG_RELEASE()
@@ -535,20 +571,9 @@ void button_27_PRESSED()
     }
     else
     {
-        is_view = !is_view;
-
-        aroma_stop(&Player);
-
-        if(!is_view)
-        {
-            aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
-            TM1620_Print("    ");
-        }
-        else
-        {
-            aroma_music(&Player, getup_mp3_start, getup_mp3_end);
-            display_time();
-        }
+        is_view = false;
+        nightly_mode = false;
+        TM1620_Print("   ");
     }
 }
 
@@ -560,10 +585,24 @@ void button_27_LONG_PRESSED()
     }
     else
     {
-        TM1620_Print(" U  ");
-        aroma_stop(&Player);
-        aroma_volume(&Player, 100);
-        aroma_play(&Player);
+        if(control_mode == 0)
+        {
+            TM1620_Print(" L  ");
+            puts(" L  ");
+            time_t now = time(NULL);
+            sleep_time = now - (3 * 60); // 同步时间
+            control_mode = 2;
+            set_spray(60 * 60, 100, true, false);
+            set_ledc(true, true, false);
+            
+            aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
+
+            aroma_volume(&Player, 40);
+            aroma_play(&Player);
+            
+            printf("ready sleep_time %ld\n", sleep_time);
+        }
+
     }
 }
 
@@ -575,7 +614,6 @@ void button_27_LONG_RELEASE()
     }
     else
     {
-        aroma_stop(&Player);
         display_time();
     }
 }
@@ -686,7 +724,10 @@ void task_view(void *arg)
                 }
                 else
                 {
-                    TM1620_Print("    ");
+                    if(0 == now % 2)
+                    {
+                        TM1620_Print("    ");
+                    }
                 }
 
                 vTaskDelay(1000 / portTICK_RATE_MS);

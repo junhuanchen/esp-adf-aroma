@@ -11,3 +11,7 @@ void unit_test_ledc_fade();
 void all_ledc_on();
 
 void all_ledc_off();
+
+void start_ledc_fade();
+
+void close_ledc_fade();
