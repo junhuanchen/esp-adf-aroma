@@ -10,14 +10,54 @@
 #define LEDC_FADE_CHANNEL1      LEDC_CHANNEL_0
 #define LEDC_FADE_CHANNEL2      LEDC_CHANNEL_1
 
-#define LEDC_TEST_DUTY_MAX     (8000)//max to 2 ** duty_resolution - 1 = 2 ** 13 -1 = 8191
-#define LEDC_TEST_DUTY_MIN     (2000)
-#define LEDC_TEST_FADE_TIME    (4000) //T = 8s
+#define LEDC_TEST_FADE_TIME 2000
+
+int DuringDutyMax = 4000;
+// int DuringDutyMin = 4000;
+int DuringDutyTime = 1000;
+
+int NightlyDutyMax = 1000;
+// int NightlyDutyMin = 4000;
+int NightlyDutyTime = 1000;
 
 bool ledc_fade_enable = false;
 bool ledc_fade_pause = false;
 
 int nightly_mode = false; //  nightly 红灯
+
+void open_during_led()
+{
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, DuringDutyMax, DuringDutyTime);
+    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
+}
+
+void stop_during_led()
+{
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, 0, DuringDutyTime);
+    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
+    vTaskDelay(DuringDutyTime / portTICK_RATE_MS);
+    ledc_stop(LEDC_MODE, LEDC_FADE_CHANNEL1, 0);
+
+    // vTaskDelay(DuringDutyTime / portTICK_RATE_MS);
+    // gpio_set_level(GPIO_NUM_23, 1);
+}
+
+void open_nightly_led()
+{
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, NightlyDutyMax, NightlyDutyTime);
+    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
+}
+
+void stop_nightly_led()
+{
+    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, NightlyDutyTime);
+    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
+    vTaskDelay(NightlyDutyTime / portTICK_RATE_MS);
+    ledc_stop(LEDC_MODE, LEDC_FADE_CHANNEL2, 0);
+
+    // vTaskDelay(NightlyDutyTime / portTICK_RATE_MS);
+    // gpio_set_level(GPIO_NUM_18, 1);
+}
 
 void set_ledc(int enable, int pause, bool mode)
 {
@@ -29,21 +69,20 @@ void set_ledc(int enable, int pause, bool mode)
 void all_ledc_on()
 {
     //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
-    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
-
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
-    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
+    open_during_led();
+    open_nightly_led();
+    
 }
 
 void all_ledc_off()
-{
-    //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MIN, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, 0, LEDC_TEST_FADE_TIME);
-    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
+{    
+    ledc_fade_enable = false;
+    stop_during_led();
+    stop_nightly_led();
+
+    // ledc_timer_resume(LEDC_MODE, LEDC_TIMER);
+    // vTaskDelay(10 / portTICK_RATE_MS);
     
-    ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, LEDC_TEST_FADE_TIME);
-    ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
 }
 
 void start_ledc_fade()
@@ -52,13 +91,13 @@ void start_ledc_fade()
     if(nightly_mode)
     {
         //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-        ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
-        ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
+        open_during_led();
+        stop_nightly_led();
     }
     else
     {
-        ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_TEST_DUTY_MAX, LEDC_TEST_FADE_TIME);
-        ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
+        open_nightly_led();
+        stop_during_led();
     }
 }
 
@@ -67,14 +106,11 @@ void close_ledc_fade()
     puts("close_ledc_fade");
     if(nightly_mode)
     {
-        //ledc_set_fade_time_and_start(LEDC_MODE, LEDC_FADE_CHANNEL, LEDC_TEST_DUTY_MIN, LEDC_TEST_FADE_TIME, LEDC_FADE_NO_WAIT);
-        ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL1, 0, LEDC_TEST_FADE_TIME);
-        ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL1, LEDC_FADE_NO_WAIT);
+        stop_nightly_led();
     }
     else
     {
-        ledc_set_fade_with_time(LEDC_MODE,LEDC_FADE_CHANNEL2, 0, LEDC_TEST_FADE_TIME);
-        ledc_fade_start(LEDC_MODE,LEDC_FADE_CHANNEL2, LEDC_FADE_NO_WAIT);
+        stop_during_led();
     }
 }
 

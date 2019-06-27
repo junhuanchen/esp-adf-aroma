@@ -12,14 +12,14 @@
 #define GPIO_PWM0B_OUT         (12)   //Set GPIO 23 as PWM0B
 
 int spray_start = 5000 / portTICK_RATE_MS, spray_stop = 5000 / portTICK_RATE_MS;
-int spray_time = 0, spray_duty = 50, spray_state = 0, spray_mode = 0;
+int spray_time = 0, spray_duty = 50, spray_state = 0, spray_mode = 0, spary_run = false;
 
 void set_spray(int time, int duty, int state, int mode)
 {
     spray_time = time;
     spray_duty = duty;
     spray_state = state;
-    spray_mode= mode;
+    spray_mode = mode;
 }
 
 void all_spray_on()
@@ -111,16 +111,29 @@ void task_spray(void *arg)
 
         // if (spray_pause == false)
         {
+
             if(spray_state == 1 && spray_time != 0)
             {
                 spray_state = 2;
                 last_time = get_second();
-                start_spray();
             }
         
-            if (spray_state == 2 && interval >= spray_time)
+            if (spray_state == 2)
             {
-                spray_state = 0;
+                if (spary_run == false)
+                {
+                    start_spray();
+                    spary_run = true;
+                }
+                else
+                {
+                    close_spray();
+                    spary_run = false;
+                }
+                if (interval >= spray_time)
+                {
+                    spray_state = 0;
+                }
             }
             
             if (spray_state == 0 && spray_time != 0)

@@ -15,3 +15,11 @@ void all_ledc_off();
 void start_ledc_fade();
 
 void close_ledc_fade();
+
+void open_during_led();
+
+void stop_during_led();
+
+void open_nightly_led();
+
+void stop_nightly_led();
