@@ -188,6 +188,18 @@ uint8_t chToFontcode(char ch)
     {
         fontcode = fontCode[20]; //test led全亮
     }
+    else if (ch == 'Q')
+    {
+        fontcode = fontCode[21];
+    }
+    else if (ch == 'C')
+    {
+        fontcode = fontCode[22];
+    }
+    else if (ch == 'J')
+    {
+        fontcode = fontCode[23];
+    }
     else
     {
         fontcode = 0; //off

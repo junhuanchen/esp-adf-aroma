@@ -257,7 +257,7 @@ void control_task(time_t now)
                     
                     aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
 
-                    aroma_volume(&Player, 20);
+                    aroma_volume(&Player, 50);
                     aroma_play(&Player);
                     
                     printf("ready sleep_time %ld\n", sleep_time);
@@ -280,19 +280,19 @@ void control_task(time_t now)
                     aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
                     aroma_resume(&Player);
                     
-                    if(Player.player_volume != 15 && now - sleep_time >= 10 * 60)
+                    if(Player.player_volume != 40 && now - sleep_time >= 10 * 60)
                     {
-                        aroma_volume(&Player, 15);
+                        aroma_volume(&Player, 40);
                     }
                     
-                    if(Player.player_volume != 10 && now - sleep_time >= 20 * 60)
+                    if(Player.player_volume != 30 && now - sleep_time >= 20 * 60)
                     {
-                        aroma_volume(&Player, 10);
+                        aroma_volume(&Player, 30);
                     }
                     
-                    if(Player.player_volume != 5 && now - sleep_time >= 30 * 60)
+                    if(Player.player_volume != 20 && now - sleep_time >= 30 * 60)
                     {
-                        aroma_volume(&Player, 5);
+                        aroma_volume(&Player, 20);
                     }
                 }
                 
@@ -321,8 +321,8 @@ void button_13_PRESSED()
 {
     if (control_mode == 0 || control_mode == 2)
     {
-        TM1620_Print(" U  ");
-        puts(" U  ");
+        // TM1620_Print(" U  ");
+        // puts(" U  ");
 
         ledc_fade_pause = ledc_fade_enable = false;
         all_ledc_off();
@@ -331,9 +331,9 @@ void button_13_PRESSED()
     if (control_mode == 1)
     {
         // 起床 需要 懒觉
-            
-        TM1620_Print(" A  ");
-        puts(" A  ");
+                
+        TM1620_Print(" P  ");
+        puts(" P  ");
         
         if (control_pause == false)
         {
@@ -351,8 +351,8 @@ void button_13_PRESSED()
 
 void button_13_LONG_PRESSED()
 {
-    TM1620_Print(" P  ");
-    puts(" P  ");
+    TM1620_Print(" A  ");
+    puts(" A  ");
     
     if (control_mode != 0)
     {
@@ -384,7 +384,7 @@ void button_32_PRESSED()
         nightly_mode = true;
         TM1620_Print(" H1 ");
         puts(" H1 ");
-        open_during_led();
+        all_ledc_on();
     }
 }
 
@@ -515,13 +515,13 @@ void button_33_PRESSED()
             config_mode = view_getup_time;
             break;
         case view_getup_time:
-            TM1620_Print(" F2 ");
+            TM1620_Print(" 5 J");
             vTaskDelay(1000 / portTICK_RATE_MS);
             time_data = &getup_time;
             config_mode = view_sleep_time;
             break;
         case view_sleep_time:
-            TM1620_Print(" F3 ");
+            TM1620_Print(" Q C");
             vTaskDelay(1000 / portTICK_RATE_MS);
             time_data = &sleep_time;
             config_mode = view_idle;
@@ -564,7 +564,7 @@ void button_27_PRESSED()
         nightly_mode = false;
         TM1620_Print(" L1 ");
         puts(" L1  ");
-        open_nightly_led();
+        all_ledc_on();
     }
 }
 
@@ -588,7 +588,7 @@ void button_27_LONG_PRESSED()
             
             aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
 
-            aroma_volume(&Player, 40);
+            aroma_volume(&Player, 70);
             aroma_play(&Player);
             
             printf("ready sleep_time %ld\n", sleep_time);

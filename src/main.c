@@ -28,24 +28,44 @@ static gpio_config_t init_io(gpio_num_t num)
 
 void app_main(void)
 {
-    // gpio_config_t io_config_19 = init_io(GPIO_NUM_19);
-    // gpio_config(&io_config_19);
-    // gpio_set_level(GPIO_NUM_19, 1);
-    // vTaskDelay(1000 / portTICK_RATE_MS);
-    // gpio_set_level(GPIO_NUM_19, 0);
+    // gpio_set_direction(GPIO_NUM_23, GPIO_MODE_OUTPUT);
+    // gpio_set_level(GPIO_NUM_23, 1);
+    // gpio_set_direction(GPIO_NUM_18, GPIO_MODE_OUTPUT);
+    // gpio_set_level(GPIO_NUM_18, 1);
 
-    aroma_init(&Player);
-    aroma_music(&Player, getup_mp3_start, getup_mp3_end);
+    // vTaskDelay(10000 / portTICK_RATE_MS);
+
+    // gpio_set_level(GPIO_NUM_18, 0);
+
+    // gpio_set_level(GPIO_NUM_23, 0);
+
+    // return ;
     // aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
     
     // aroma_play(&Player);
     
     // unit_test_aroma_config();
     
+    aroma_init(&Player);
+
+    aroma_music(&Player, getup_mp3_start, getup_mp3_end);
+    
+    // vTaskDelay(5000 / portTICK_RATE_MS);
+
     unit_test_ledc_fade();
+
     unit_test_spray();
 
     unit_test_view();
+
+    // gpio_config_t io_config_19 = init_io(GPIO_NUM_19);
+    // gpio_config(&io_config_19);
+
+    // gpio_set_level(GPIO_NUM_19, 0);
+
+    // vTaskDelay(500 / portTICK_RATE_MS);
+
+    // gpio_set_level(GPIO_NUM_19, 0);
 
     // aroma_volume(&Player, 100);
     // aroma_play(&Player);
