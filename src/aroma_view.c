@@ -584,7 +584,7 @@ void button_27_LONG_PRESSED()
             sleep_time = now - (3 * 60); // 同步时间
             control_mode = 2;
             set_spray(60 * 60, 100, true, false);
-            set_ledc(true, true, false);
+            set_ledc(true, false, false);
             
             aroma_music(&Player, sleep_mp3_start, sleep_mp3_end);
 
