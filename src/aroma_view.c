@@ -609,8 +609,11 @@ void button_27_LONG_RELEASE()
     }
 }
 
+#include "es8388.h"
+
 void task_view(void *arg)
 {
+    es8388_pa_enable(false);
     // iic_init();
     
     sync_time(); // 对一下时间
@@ -665,6 +668,8 @@ void task_view(void *arg)
 
     display_time();
 
+    es8388_pa_enable(true);
+	
     while(true)
     {
         time_t now = time(NULL);
